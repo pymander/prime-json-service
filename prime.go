@@ -1,11 +1,11 @@
 package primejson
 
 import (
+	"encoding/json"
 	"fmt"
-	"net/http"
 	"html/template"
 	"math/big"
-	"encoding/json"
+	"net/http"
 )
 
 func init() {
@@ -20,7 +20,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("templates/index.html")
 	page := PageInfo{
-		Title: "Prime Number Testing App",
+		Title:  "Prime Number Testing App",
 		Author: "Erik L. Arneson",
 	}
 
@@ -29,18 +29,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 // Prime number stuff
 type Result struct {
-	Count int
+	Count  int
 	Number *big.Int
-	Prime bool
-	Happy bool
+	Prime  bool
+	Happy  bool
 }
 
 // Adapted from http://rosettacode.org/wiki/Happy_numbers#Go
 // This is a good example of me being uncomfortable with pointers in Go yet.
 func happy(arg *big.Int) bool {
 	var zero = big.NewInt(0)
-	var one  = big.NewInt(1)
-	var ten  = big.NewInt(10)
+	var one = big.NewInt(1)
+	var ten = big.NewInt(10)
 	var n big.Int
 
 	n.Set(arg)
@@ -76,16 +76,16 @@ func prime(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	number.SetString(numberstring, 10) 
+	number.SetString(numberstring, 10)
 
 	result := Result{
 		Count:  1,
 		Number: &number,
-		Prime: number.ProbablyPrime(10),
-		Happy: happy(&number),
+		Prime:  number.ProbablyPrime(10),
+		Happy:  happy(&number),
 	}
 
-	output,err := json.Marshal(result)
+	output, err := json.Marshal(result)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -93,4 +93,3 @@ func prime(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprint(w, string(output))
 }
-
