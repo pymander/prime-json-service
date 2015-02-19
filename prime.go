@@ -71,12 +71,17 @@ func prime(w http.ResponseWriter, r *http.Request) {
 	// 2. It ends in a 5.
 
 	numberstring = r.FormValue("number")
+	if len(numberstring) > 300 {
+		http.Error(w, "Please only test integers of less than 300 digits.", http.StatusNotAcceptable)
+		return
+	}
+
 	number.SetString(numberstring, 10) 
 
 	result := Result{
 		Count:  1,
 		Number: &number,
-		Prime: number.ProbablyPrime(50),
+		Prime: number.ProbablyPrime(10),
 		Happy: happy(&number),
 	}
 
