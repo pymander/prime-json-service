@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{.Title}}</title>
+  </head>
+  <body>
+    <h1>{{.Title}}</h1>
+    <p>
+      Welcome to the first application I've ever written for the Go App Engine.
+    </p>
+    <p>This application mostly tests the primality of numbers and does some cool things with the results.</p>
+    <ul>
+      <li>Uses the <code>math/big</code> package</li>
+      <li>Stores prime numbers in a Google datastore</li>
+      <li>Returns JSON-encoded results</li>
+      <li>Uses <code>html/template</code> to do this page, for instance</li>
+    </ul>
+    <h2>Test the Primality of a Number Here</h2>
+    <form method="GET" id="" action="/prime">
+      <input type="text" name="number" value="" placeholder="Input a number of any size" size="60" />
+      <input type="submit" name="sumbit" value="Go" />
+    </form>
+    <p>
+      If you would like to read more about this application and see it in action, please visit my blog and read
+      more. <a href="{{.BlogUrl}}">You can find it at this link.</a>
+    </p>
+    <p>
+      If you want to view the source code for this app, <a href="{{.RepoUrl}}">go to the GitHub repository here</a>.
+    </p>
+    <p>
+      <small>This app was written by <a href="http://arnesonium.com">{{.Author}}</a>.</small>
+    </p>
+  </body>
+</html>
