@@ -30,20 +30,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 // Prime number stuff
 type Result struct {
 	Count int
-	Number big.Int
+	Number *big.Int
 	Prime bool
 	Happy bool
 }
 
 // Adapted from http://rosettacode.org/wiki/Happy_numbers#Go
 // This is a good example of me being uncomfortable with pointers in Go yet.
-func happy(arg big.Int) bool {
+func happy(arg *big.Int) bool {
 	var zero = big.NewInt(0)
 	var one  = big.NewInt(1)
 	var ten  = big.NewInt(10)
 	var n big.Int
 
-	n.Set(&arg)
+	n.Set(arg)
 	m := make(map[string]bool)
 	for n.Cmp(one) > 0 {
 		m[n.String()] = true
@@ -64,18 +64,21 @@ func happy(arg big.Int) bool {
 
 func prime(w http.ResponseWriter, r *http.Request) {
 	var numberstring string
-	result := new(Result)
+	var number big.Int
 
 	// Obvious prime testing things
 	// 1. It ends in an even number.
 	// 2. It ends in a 5.
 
-
 	numberstring = r.FormValue("number")
+	number.SetString(numberstring, 10) 
 
-	result.Number.SetString(numberstring, 10)
-	result.Prime = result.Number.ProbablyPrime(50)
-	result.Happy = happy(result.Number)
+	result := Result{
+		Count:  1,
+		Number: &number,
+		Prime: number.ProbablyPrime(50),
+		Happy: happy(&number),
+	}
 
 	output,err := json.Marshal(result)
 	if err != nil {
