@@ -49,7 +49,7 @@ type LastPrime struct {
 	RequestTime time.Time
 }
 
-func GetLastPrime(c appengine.Context, num string) (*LastPrime, error) {
+func LookupLastPrime(c appengine.Context) (*LastPrime, error) {
 	key := datastore.NewKey(c, "Prime", "LastPrime", 0, nil)
 	result := new(LastPrime)
 	if err := datastore.Get(c, key, result); err != nil {
@@ -57,4 +57,13 @@ func GetLastPrime(c appengine.Context, num string) (*LastPrime, error) {
 	}
 
 	return result, nil
+}
+
+func StoreLastPrime(c appengine.Context, record *LastPrime) error {
+	key := datastore.NewKey(c, "Prime", "LastPrime", 0, nil)
+	if _, err := datastore.Put(c, key, record); err != nil {
+		return err
+	}
+
+	return nil
 }

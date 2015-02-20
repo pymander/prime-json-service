@@ -5,6 +5,7 @@ package prime
 import (
 	"appengine"
 	"math/big"
+	"time"
 )
 
 // Prime number stuff
@@ -44,6 +45,11 @@ func IsPrime(c appengine.Context, numberstring string) (*Result, error) {
 
 	number.SetString(numberstring, 10)
 
+	return IsPrimeInt(c, number)
+}
+
+func IsPrimeInt(c appengine.Context, number *big.Int) (*Result, error) {
+
 	// Obvious prime testing things
 	// 1. It ends in an even number.
 	// 2. It ends in a 5.
@@ -69,6 +75,45 @@ func IsPrime(c appengine.Context, numberstring string) (*Result, error) {
 		if err := StorePrime(c, result); err != nil {
 			return nil, err
 		}
+	}
+
+	return result, nil
+}
+
+func GetNextPrime(c appengine.Context) (*Result, error) {
+	var err error
+	result := new(Result)
+	lastPrime, err := LookupLastPrime(c)
+	two := big.NewInt(2)
+
+	// Have we never lookup up the last prime before? Dang! Start over at 11.
+	if nil == lastPrime {
+		lastPrime = &LastPrime{
+			Number:      "11",
+			RequestTime: time.Now(),
+		}
+	}
+
+	oddNumber := new(big.Int)
+	oddNumber.SetString(lastPrime.Number, 10)
+
+	for {
+		oddNumber.Add(oddNumber, two)
+		result, err = IsPrimeInt(c, oddNumber)
+		if err != nil {
+			return nil, err
+		}
+
+		if true == result.Prime {
+			break
+		}
+	}
+
+	// We have our next prime! Let's save it now.
+	lastPrime.Number = oddNumber.String()
+	lastPrime.RequestTime = time.Now()
+	if err = StoreLastPrime(c, lastPrime); err != nil {
+		return nil, err
 	}
 
 	return result, nil

@@ -11,7 +11,7 @@ import (
 func init() {
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/prime", primeHandler)
-	//http.HandleFunc("/nextprime", nextprimeHandler)
+	http.HandleFunc("/nextprime", nextprimeHandler)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -62,6 +62,25 @@ func primeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check primality.
 	result, err = IsPrime(c, numberstring)
+
+	output, err = json.Marshal(result)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(w, string(output))
+}
+
+func nextprimeHandler(w http.ResponseWriter, r *http.Request) {
+	var output []byte
+	c := appengine.NewContext(r)
+
+	result, err := GetNextPrime(c)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	output, err = json.Marshal(result)
 	if err != nil {
