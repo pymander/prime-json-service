@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"path/filepath"
 )
 
 func init() {
@@ -22,11 +23,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	title := "Prime Number Web App"
 	var page, scheme string
 
+	// Figure out where our templates are located.
+	//baseDir, _ := os.Getwd()
+	//templateDir := filepath.Join(baseDir, "prime", "templates")
+	templateDir := "templates"
+
 	switch path {
 	default:
-		page = "templates/index.html"
+		page = filepath.Join(templateDir, "index.html")
 	case "usage":
-		page = "templates/usage.html"
+		page = filepath.Join(templateDir, "usage.html")
 		title += " - Usage"
 	}
 
@@ -37,7 +43,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		scheme = "https"
 	}
 
-	t, _ := template.ParseFiles(page)
+	t, err := template.ParseFiles(page)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	pageInfo := PageInfo{
 		Title:   title,
 		Author:  "Erik L. Arneson",
