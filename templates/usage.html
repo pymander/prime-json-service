@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{.Title}}</title>
+  </head>
+  <body>
+    <h1>{{.Title}}</h1>
+    <p>
+      You too can include the next prime number on your webpage! This is how you do it.
+    </p>
+    <h2>Return Value</h2>
+    <p>All of the endpoints here return the same structure. You'll get back a JSONP string with the following keys.</p>
+    <dl id="">
+      <dt>Number (string)</dt>
+      <dd>The number you requested.</dd>
+      <dt>Prime (bool)</dt>
+      <dd>This will be true if your number is prime. Congratulations!</dd>
+      <dt>Happy (bool)</dt>
+      <dd>This will be true if you submitted a happy number. Even better if it's prime and happy! This probably calls
+      for celebration.</dd>
+      <dt>Count (int)</dt>
+      <dd>The number of times this number has been requested, if prime. We don't track non-primes.</dd>
+    </dl>
+
+    <h2>Prime Number Test</h2>
+    <p>
+      Send a request to <code>{{.BaseUrl}}prime</code> with the following parameters:
+    </p>
+    <dl id="">
+      <dt>number (required)</dt>
+      <dd>A number less than 300 digits whose primality you'd like to test.</dd>
+    </dl>
+
+    <h2>The Next Prime Number</h2>
+    <p>
+      When this application launches, or maybe just every once in a while, it starts marching through the infinite list
+      of prime numbers. This makes you part of the march. Hit this endpoint and you'll get the next prime number in the
+      series.
+    </p>
+    <p>Send a request to <code>{{.BaseUrl}}nextprime</code> with no parameters to get the next in the list.</p>
+
+  </body>
+</html>

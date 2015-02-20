@@ -1,6 +1,8 @@
-package primejson
+package prime
 
 import (
+	"appengine"
+	"appengine/datastore"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -10,21 +12,41 @@ import (
 
 func init() {
 	http.HandleFunc("/", handler)
-	http.HandleFunc("/prime", prime)
+	http.HandleFunc("/prime", primeHandler)
+	//http.HandleFunc("/nextprime", nextprimeHandler)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	type PageInfo struct {
-		Title, Author, BlogUrl, RepoUrl string
+		Title, Author, BaseUrl, BlogUrl, RepoUrl string
+	}
+	path := r.URL.Path[1:]
+	title := "Prime Number Web App"
+	var page, scheme string
+
+	switch path {
+	default:
+		page = "templates/index.html"
+	case "usage":
+		page = "templates/usage.html"
+		title += " - Usage"
 	}
 
-	t, _ := template.ParseFiles("templates/index.html")
-	page := PageInfo{
-		Title:  "Prime Number Testing App",
-		Author: "Erik L. Arneson",
+	// For calculating the base URL
+	if nil == r.TLS {
+		scheme = "http"
+	} else {
+		scheme = "https"
 	}
 
-	t.Execute(w, page)
+	t, _ := template.ParseFiles(page)
+	pageInfo := PageInfo{
+		Title:   title,
+		Author:  "Erik L. Arneson",
+		BaseUrl: scheme + "://" + r.Host + "/",
+	}
+
+	t.Execute(w, pageInfo)
 }
 
 // Prime number stuff
@@ -59,16 +81,11 @@ func happy(arg *big.Int) bool {
 	return true
 }
 
-// @TODO Store primes in data store - including count
-// @TODO Lookup primes from data store
-
-func prime(w http.ResponseWriter, r *http.Request) {
+func primeHandler(w http.ResponseWriter, r *http.Request) {
 	var numberstring string
 	var number big.Int
-
-	// Obvious prime testing things
-	// 1. It ends in an even number.
-	// 2. It ends in a 5.
+	var result *Result
+	c := appengine.NewContext(r)
 
 	numberstring = r.FormValue("number")
 	if len(numberstring) > 300 {
@@ -78,11 +95,31 @@ func prime(w http.ResponseWriter, r *http.Request) {
 
 	number.SetString(numberstring, 10)
 
-	result := Result{
-		Count:  1,
-		Number: &number,
-		Prime:  number.ProbablyPrime(10),
-		Happy:  happy(&number),
+	// Obvious prime testing things
+	// 1. It ends in an even number.
+	// 2. It ends in a 5.
+
+	// Try a lookup first.
+	result, _ = lookupPrime(c, number.String())
+
+	// Nothing in the database. Better test it ourselves.
+	if nil == result {
+		result = &Result{
+			Count:  0,
+			Number: &number,
+			Prime:  number.ProbablyPrime(10),
+			Happy:  happy(&number),
+		}
+	}
+
+	// Keep track of how many times specific prime numbers have been looked for.
+	result.Count++
+
+	// If prime, we store.
+	if true == result.Prime {
+		if err := storePrime(c, result); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 
 	output, err := json.Marshal(result)
@@ -92,4 +129,40 @@ func prime(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprint(w, string(output))
+}
+
+// Because the datastore can't store big.Int types, we need to marshall.
+type PrimeRecord struct {
+	Data []byte
+}
+
+func lookupPrime(c appengine.Context, num string) (*Result, error) {
+	key := datastore.NewKey(c, "Prime", num, 0, nil)
+	result := new(PrimeRecord)
+	if err := datastore.Get(c, key, result); err != nil {
+		return nil, err
+	}
+
+	primeResult := new(Result)
+	json.Unmarshal(result.Data, &primeResult)
+
+	return primeResult, nil
+}
+
+func storePrime(c appengine.Context, prime *Result) error {
+	output, err := json.Marshal(prime)
+	if err != nil {
+		return err
+	}
+
+	record := &PrimeRecord{
+		Data: output,
+	}
+
+	key := datastore.NewKey(c, "Prime", prime.Number.String(), 0, nil)
+	if _, err := datastore.Put(c, key, record); err != nil {
+		return err
+	}
+
+	return nil
 }
