@@ -9,7 +9,7 @@
       You too can include the next prime number on your webpage! This is how you do it.
     </p>
     <h2>Return Value</h2>
-    <p>All of the endpoints here return the same structure. You'll get back a JSONP string with the following keys.</p>
+    <p>All of the endpoints here return the same structure. You'll get back a JSON structure with the following keys.</p>
     <dl id="">
       <dt>Number (string)</dt>
       <dd>The number you requested.</dd>
@@ -19,7 +19,8 @@
       <dd>This will be true if you submitted a happy number. Even better if it's prime and happy! This probably calls
       for celebration.</dd>
       <dt>Count (int)</dt>
-      <dd>The number of times this number has been requested, if prime. We don't track non-primes.</dd>
+      <dd>The number of times this number has been requested, if prime. We don't track non-primes, so in that case this
+      will always be 0 or 1.</dd>
     </dl>
 
     <h2>Prime Number Test</h2>
