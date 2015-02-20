@@ -23,6 +23,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	title := "Prime Number Web App"
 	var page, scheme string
 
+	// @TODO Templates live in a different relative location in the deployed module.
 	// Figure out where our templates are located.
 	//baseDir, _ := os.Getwd()
 	//templateDir := filepath.Join(baseDir, "prime", "templates")
@@ -53,6 +54,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		Title:   title,
 		Author:  "Erik L. Arneson",
 		BaseUrl: scheme + "://" + r.Host + "/",
+		RepoUrl: "https://github.com/pymander/prime-json-service",
+		BlogUrl: "http://arnesonium.com/2015/02/prime-number-google-app-engine/",
 	}
 
 	t.Execute(w, pageInfo)
