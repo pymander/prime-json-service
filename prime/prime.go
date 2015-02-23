@@ -23,10 +23,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	title := "Prime Number Web App"
 	var page, scheme string
 
-	// @TODO Templates live in a different relative location in the deployed module.
 	// Figure out where our templates are located.
-	//baseDir, _ := os.Getwd()
-	//templateDir := filepath.Join(baseDir, "prime", "templates")
 	templateDir := "templates"
 
 	switch path {

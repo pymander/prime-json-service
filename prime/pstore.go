@@ -26,6 +26,7 @@ func LookupPrime(c appengine.Context, num string) (*Result, error) {
 	return primeResult, nil
 }
 
+// @TODO Fix this storage method. It makes all of our keys unavailable.
 func StorePrime(c appengine.Context, prime *Result) error {
 	output, err := json.Marshal(prime)
 	if err != nil {

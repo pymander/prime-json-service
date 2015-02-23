@@ -6,7 +6,7 @@
   <body>
     <h1>{{.Title}}</h1>
     <p>
-      Welcome to the first application I've ever written for the Go App Engine.
+      Welcome to my first application for the Go App Engine.
     </p>
     <p>This application mostly tests the primality of numbers and does some cool things with the results.</p>
     <ul>
@@ -16,10 +16,11 @@
       <li>Uses <code>html/template</code> to do this page, for instance</li>
     </ul>
     <h2>Test the Primality of a Number Here</h2>
-    <form method="GET" id="" action="/prime">
-      <input type="text" name="number" value="" placeholder="Input a number of any size" size="60" />
-      <input type="submit" name="submit" value="Go" />
+    <form method="GET" id="">
+      <input type="text" name="number" id="number" value="" placeholder="Input a number of any size" size="60" />
+      <button type="button" id="primebutton">Go</button>
     </form>
+    <p id="results" style="background-color:#dddddd"></p>
     <p>
       If you would like to query the prime number endpoint from your own application or website, please read more
       at <a href="/usage">the documentation page</a>.
@@ -35,4 +36,31 @@
       <small>This app was written by <a href="http://arnesonium.com">{{.Author}}</a>.</small>
     </p>
   </body>
+  <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+        $(document).on('click', '#primebutton', function (event) {
+            var number = $('#number').val();
+            $.getJSON('{{.BaseUrl}}prime',
+                      { number : number },
+                      function (results) {
+                          var newHtml = '';
+                          if (true == results['Prime']) {
+                              newHtml += 'Yes, ' + number + ' is prime! Good job.';
+                          } else {
+                              newHtml += 'Sorry, ' + number + ' is not prime.';
+                          }
+
+                          if (true == results['Happy'])
+                              newHtml += ' Good news! ' + number + ' is happy!';
+
+                          if (1 < results['Count'])
+                              newHtml += ' This number has been requested ' + results['Count'] + ' times.';
+
+                          $('#results').html(newHtml);
+                      });
+        });
+    });
+  </script>
 </html>
